@@ -6,51 +6,54 @@
 //
 
 import Foundation
+import Combine
 
-class UserListViewModel: ObservableObject {
-    @Published var users: [User] = []
+protocol UserListViewModelProtocol: ObservableObject {
+    var users: [User] { get }
+    func loadMoreUsersIfNeeded(currentItem: User?, useCache: Bool)
+}
+
+class UserListViewModel: UserListViewModelProtocol {
+    @Published private(set) var users = [User]()
+    @Published private(set) var isLoading = false
     @Published var errorMessage: String? = nil
+    private var currentPage = 1
+    private let userService: UserServiceProtocol
     
-    init() {
-      fetchUsers()
+    init(userService: UserServiceProtocol) {
+        self.userService = userService
+        loadMoreUsersIfNeeded(currentItem: nil, useCache: true)
     }
     
-    func fetchUsers() {
-        errorMessage = nil
+    func loadMoreUsersIfNeeded(currentItem: User?, useCache: Bool = true) {
+        guard !isLoading else { return }
         
-        guard let url = URL(string: "https://randomuser.me/api/?page=1&results=20&seed=abc") else {
-            errorMessage = "Invalid URL"
-            return
+        if let currentItem = currentItem {
+            let thresholdIndex = users.index(users.endIndex, offsetBy: -3)
+            if users.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
+                fetchUsers(useCache: useCache)
+            }
+        } else {
+            fetchUsers(useCache: useCache)
         }
+    }
+    
+    private func fetchUsers(useCache: Bool) {
+        guard currentPage <= 3 else { return }
         
-        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+        isLoading = true
+        userService.fetchUsers(page: currentPage, useCache: useCache) { [weak self] result in
             DispatchQueue.main.async {
-                
-                if let error = error {
-                    self?.errorMessage = "Failed to fetch users: \(error.localizedDescription)"
-                    return
+                switch result {
+                case .success(let newUsers):
+                    self?.users.append(contentsOf: newUsers)
+                    self?.currentPage += 1
+                case .failure(let error):
+                    print("Error fetching users: \(error)")
+                    self?.errorMessage = "Error fetching users: \(error.localizedDescription)"
                 }
-                
-                guard let data = data else {
-                    self?.errorMessage = "No data received"
-                    return
-                }
-                
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("JSON Response: \(jsonString)")
-                }
-                
-                do {
-                    let decodedResponse = try JSONDecoder().decode(Response.self, from: data)
-                    self?.users = decodedResponse.results
-                } catch {
-                    self?.errorMessage = "Failed to decode JSON: \(error.localizedDescription)"
-                    print("Decoding error: \(error.localizedDescription)")
-                }
+                self?.isLoading = false
             }
         }
-
-        task.resume()
-
     }
 }

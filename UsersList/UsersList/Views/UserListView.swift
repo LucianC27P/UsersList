@@ -8,44 +8,68 @@
 import SwiftUI
 
 struct UserListView: View {
-    @ObservedObject var viewModel = UserListViewModel()
+    @StateObject var viewModel: UserListViewModel
+    
+    init(viewModel: UserListViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     var body: some View {
-        ZStack {
-            Color.yellow
-                .edgesIgnoringSafeArea(.top)
-            
-            VStack(spacing: 0) {
-                HStack {
-                    Spacer()
-                    Text("Users")
-                        .font(.title)
-                        .bold()
-                    Spacer()
-                    Button(action: {
-                        // Handle search action
-                        print("search")
-                    }) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.black)
-                            .font(.title2)
+        NavigationView {
+            ZStack {
+                Color.yellow
+                    .edgesIgnoringSafeArea(.top)
+                
+                VStack(spacing: 0) {
+                    HStack {
+                        Spacer()
+                        Text("Users")
+                            .font(.title)
+                            .bold()
+                        Spacer()
+                        Button(action: {
+                            // Handle search action
+                            print("search")
+                        }) {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(.black)
+                                .font(.title2)
+                        }
+                    }
+                    .padding()
+                    .background(Color.yellow)
+                    
+                    if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                    } else {
+                        List(viewModel.users) { user in
+                            UserRowView(user: user)
+                                .onAppear {
+                                    viewModel.loadMoreUsersIfNeeded(currentItem: user)
+                                }
+                        }
+                        .background(Color.white)
+                        .listStyle(PlainListStyle())
+                        .cornerRadius(0)
+                        
+                        if viewModel.isLoading {
+                            ProgressView("Loading...")
+                        }
                     }
                 }
-                .padding()
-                .background(Color.yellow)
-                
-                List(viewModel.users) { user in
-                    UserRowView(user: user)
-                }
-                .background(Color.white)
-                .listStyle(PlainListStyle())
-                .cornerRadius(0)
+                .padding(0)
             }
-            .padding(0)
         }
     }
 }
 
-#Preview {
-    UserListView()
+struct UserListView_Previews: PreviewProvider {
+    static var previews: some View {
+        let userService = UserService()
+        let viewModel = UserListViewModel(userService: userService)
+        UserListView(viewModel: viewModel)
+    }
 }

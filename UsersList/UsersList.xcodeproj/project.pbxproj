@@ -19,6 +19,8 @@
 		93E57B052C6E158200E717AA /* UserRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E57B042C6E158200E717AA /* UserRowView.swift */; };
 		93E57B082C6E227D00E717AA /* DateFormatterExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E57B072C6E227D00E717AA /* DateFormatterExtension.swift */; };
 		93E57B0A2C6E2BF200E717AA /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E57B092C6E2BF200E717AA /* ColorExtension.swift */; };
+		93E57B0D2C6E3D0500E717AA /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E57B0C2C6E3D0500E717AA /* UserCache.swift */; };
+		93E57B0F2C6E3D4E00E717AA /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E57B0E2C6E3D4E00E717AA /* UserService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +56,8 @@
 		93E57B042C6E158200E717AA /* UserRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRowView.swift; sourceTree = "<group>"; };
 		93E57B072C6E227D00E717AA /* DateFormatterExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterExtension.swift; sourceTree = "<group>"; };
 		93E57B092C6E2BF200E717AA /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
+		93E57B0C2C6E3D0500E717AA /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
+		93E57B0E2C6E3D4E00E717AA /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +108,7 @@
 		93E57AD02C6E04EE00E717AA /* UsersList */ = {
 			isa = PBXGroup;
 			children = (
+				93E57B0B2C6E3CD100E717AA /* Services */,
 				93E57B062C6E226000E717AA /* Utils */,
 				93E57B012C6E10DF00E717AA /* Models */,
 				93E57AFC2C6E105900E717AA /* View Models */,
@@ -172,6 +177,15 @@
 				93E57B092C6E2BF200E717AA /* ColorExtension.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		93E57B0B2C6E3CD100E717AA /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				93E57B0C2C6E3D0500E717AA /* UserCache.swift */,
+				93E57B0E2C6E3D4E00E717AA /* UserService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -306,9 +320,11 @@
 			files = (
 				93E57B002C6E109B00E717AA /* UserListViewModel.swift in Sources */,
 				93E57B052C6E158200E717AA /* UserRowView.swift in Sources */,
+				93E57B0F2C6E3D4E00E717AA /* UserService.swift in Sources */,
 				93E57B082C6E227D00E717AA /* DateFormatterExtension.swift in Sources */,
 				93E57AFE2C6E108100E717AA /* UserListView.swift in Sources */,
 				93E57B032C6E111600E717AA /* User.swift in Sources */,
+				93E57B0D2C6E3D0500E717AA /* UserCache.swift in Sources */,
 				93E57B0A2C6E2BF200E717AA /* ColorExtension.swift in Sources */,
 				93E57AD22C6E04EE00E717AA /* UsersListApp.swift in Sources */,
 			);
