@@ -8,29 +8,59 @@
 import XCTest
 @testable import UsersList
 
-final class UsersListTests: XCTestCase {
+class UserListViewModelTests: XCTestCase {
+    var viewModel: UserListViewModel!
+    var mockUserService: MockUserService!
+    var userFactory: UserListMockDataFactory!
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    override func setUp() {
+        super.setUp()
+        mockUserService = MockUserService()
+        userFactory = UserListMockDataFactory()
+        viewModel = UserListViewModel(userService: mockUserService)
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    override func tearDown() {
+        viewModel = nil
+        mockUserService = nil
+        userFactory = nil
+        super.tearDown()
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func test_loadMoreUsersIfNeeded_success() {
+        let expectedUsers = userFactory.getListOfUsers()
+        mockUserService.result = .success(expectedUsers)
+        viewModel = UserListViewModel(userService: mockUserService)
+        
+        viewModel.loadMoreUsersIfNeeded(currentItem: nil, useCache: false)
+        
+        let expectation = XCTestExpectation(description: "Users should be loaded")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            // Then
+            XCTAssertFalse(self.viewModel.users.isEmpty, "Users array should not be empty.")
+            XCTAssertEqual(self.viewModel.users.count, expectedUsers.count, "The users loaded by the view model should match the expected users from the JSON file.")
+            XCTAssertNil(self.viewModel.errorMessage, "The error message should be nil if fetching users succeeded.")
+            XCTAssertFalse(self.viewModel.isLoading, "The view model should not be loading after fetching users.")
+            expectation.fulfill()
         }
+        wait(for: [expectation], timeout: 2.0)
     }
-
+    
+    func test_loadMoreUsersIfNeeded_failed() {
+        let mockError = UserServiceError.unknownError
+        mockUserService.result = .failure(mockError)
+        
+        viewModel.loadMoreUsersIfNeeded(currentItem: nil, useCache: false)
+        
+        let expectation = XCTestExpectation(description: "Error should be handled")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            // Then
+            XCTAssertTrue(self.viewModel.users.isEmpty, "Users array should be empty if fetching failed.")
+            XCTAssertNotNil(self.viewModel.errorMessage, "An error message should be set if fetching users failed.")
+            XCTAssertFalse(self.viewModel.isLoading, "The view model should not be loading after an error.")
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 2.0)
+    }
 }
+

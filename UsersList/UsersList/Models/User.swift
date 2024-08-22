@@ -13,7 +13,11 @@ struct Response: Codable {
 }
 
 // MARK: - User
-struct User: Codable, Identifiable {
+struct User: Codable, Identifiable, Equatable {
+    static func == (lhs: User, rhs: User) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
     let id: UUID = UUID()
     let gender: String?
     let name: Name?

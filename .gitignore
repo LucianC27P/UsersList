@@ -5,6 +5,7 @@
 *.xcuserdata
 *.xcworkspace
 *.xcuserstate
+*.xcuserdatad
 
 # Derived Data
 DerivedData/

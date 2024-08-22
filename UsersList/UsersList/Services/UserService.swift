@@ -7,8 +7,13 @@
 
 import Foundation
 
+enum UserServiceError: Error {
+    case dataError
+    case unknownError
+}
+
 protocol UserServiceProtocol {
-    func fetchUsers(page: Int, useCache: Bool, completion: @escaping (Result<[User], Error>) -> Void)
+    func fetchUsers(page: Int, useCache: Bool, completion: @escaping (Result<[User], UserServiceError>) -> Void)
 }
 
 class UserService: UserServiceProtocol {
@@ -19,7 +24,7 @@ class UserService: UserServiceProtocol {
         self.cache = cache
     }
     
-    func fetchUsers(page: Int, useCache: Bool = true, completion: @escaping (Result<[User], any Error>) -> Void) {
+    func fetchUsers(page: Int, useCache: Bool = true, completion: @escaping (Result<[User], UserServiceError>) -> Void) {
         // Check the cache first if useCache is true
         if useCache, let cachedUsers = cache.getCachedUsers(for: page) {
             completion(.success(cachedUsers))
@@ -31,15 +36,11 @@ class UserService: UserServiceProtocol {
         guard let url = URL(string: urlString) else { return }
         
         URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            if let error = error {
-                completion(.failure(error))
+            if error != nil {
+                completion(.failure(.dataError))
                 return
             }
             guard let data = data else { return }
-            
-//            if let jsonString = String(data: data, encoding: .utf8) {
-//                print("JSON Response: \(jsonString)")
-//            }
             
             do {
                 let response = try JSONDecoder().decode(Response.self, from: data)
@@ -52,7 +53,7 @@ class UserService: UserServiceProtocol {
                 
                 completion(.success(users))
             } catch {
-                completion(.failure(error))
+                completion(.failure(.unknownError))
             }
         }.resume()
     }

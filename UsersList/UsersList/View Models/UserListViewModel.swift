@@ -49,7 +49,6 @@ class UserListViewModel: UserListViewModelProtocol {
                     self?.users.append(contentsOf: newUsers)
                     self?.currentPage += 1
                 case .failure(let error):
-                    print("Error fetching users: \(error)")
                     self?.errorMessage = "Error fetching users: \(error.localizedDescription)"
                 }
                 self?.isLoading = false
